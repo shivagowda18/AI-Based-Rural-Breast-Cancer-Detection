@@ -75,7 +75,7 @@ backend\.venv\Scripts\python.exe -m pip install --upgrade pip
 Install the required Python packages:
 
 ```cmd
-backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 ```
 
 The requirements pin CPU versions of PyTorch and
