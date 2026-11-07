@@ -1,0 +1,46 @@
+backend/.venv/
+frontend/node_modules/
+frontend/dist/
+data/raw/
+data/processed/
+backend/trained_models/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Generated heatmaps and image previews
+artifacts/explanations/
+
+# Model checkpoints - review before publishing
+artifacts/models/
+
+# Runtime uploads and temporary files
+uploads/
+backend/uploads/
+*.tmp
+
+# Local editor configuration
+.vscode/
+
+# Local logs and databases
+*.log
+*.db
+*.sqlite3
+
+# Local frontend backup files
+frontend/src/App_backup.txt
+frontend/src/translations_backup.txt
+
+# Unexpected local frontend files
+frontend/frontend@0.0.0
+frontend/npm
+frontend/tsc
+# Research paper PDFs - local reference copies
+docs/research_papers/
+
+# Draft PDF export - regenerate after final formatting
+docs/final_project_report.pdf
