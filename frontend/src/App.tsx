@@ -299,7 +299,9 @@ function App() {
 
         <nav aria-label={t.modulesHeading}>
           <a href="#overview">{t.overview}</a>
-          <a href="#upload">{t.upload}</a>
+          {!PUBLIC_EDUCATION_ONLY && (
+            <a href="#upload">{t.upload}</a>
+          )}
           <a href="#modules">{t.modules}</a>
           <a href="#about">{t.about}</a>
         </nav>
