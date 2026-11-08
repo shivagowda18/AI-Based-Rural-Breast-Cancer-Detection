@@ -5,8 +5,6 @@ import SymptomGuidance from './SymptomGuidance'
 import RiskFactors from './RiskFactors'
 import './App.css'
 
-const PUBLIC_EDUCATION_ONLY = import.meta.env.PROD
-
 type PredictionResult = {
   analysis_performed: boolean
   stored: boolean
@@ -54,11 +52,8 @@ function App() {
   const isExplaining = gradcamState === 'loading'
   const busy = isUploading || isPredicting || isExplaining
   const canAnalyze = Boolean(
-    !PUBLIC_EDUCATION_ONLY &&
-    selectedImage &&
-    confirmedUltrasound &&
-    (analysisMode === 'demo' || researchAcknowledged) &&
-    !busy
+    selectedImage && confirmedUltrasound &&
+    (analysisMode === 'demo' || researchAcknowledged) && !busy
   )
   const aiQuery = analysisMode === 'research' ? '?research_acknowledged=true' : ''
 
@@ -172,7 +167,7 @@ function App() {
   }
 
   const uploadToBackend = async () => {
-    if (PUBLIC_EDUCATION_ONLY || !selectedImage || busy) return
+    if (!selectedImage || busy) return
     setUploadState('loading')
     setValidatedDetails(null)
     setUploadErrorCode(0)
@@ -268,8 +263,6 @@ function App() {
   }
 
   useEffect(() => {
-    if (PUBLIC_EDUCATION_ONLY) return
-
     const controller = new AbortController()
     fetch('/api/health', { signal: controller.signal })
       .then((response) => {
@@ -299,9 +292,7 @@ function App() {
 
         <nav aria-label={t.modulesHeading}>
           <a href="#overview">{t.overview}</a>
-          {!PUBLIC_EDUCATION_ONLY && (
-            <a href="#upload">{t.upload}</a>
-          )}
+          <a href="#upload">{t.upload}</a>
           <a href="#modules">{t.modules}</a>
           <a href="#about">{t.about}</a>
         </nav>
@@ -324,9 +315,7 @@ function App() {
               <option value="kn">ಕನ್ನಡ</option>
               <option value="hi">हिन्दी</option>
             </select>
-            <span className="status">
-              {PUBLIC_EDUCATION_ONLY ? 'Education-only version' : statusLabel}
-            </span>
+            <span className="status">{statusLabel}</span>
           </div>
         </header>
 
@@ -337,11 +326,7 @@ function App() {
           <a className="primary-link" href="#modules">{t.exploreModules}</a>
         </section>
 
-        <section
-          className="upload-section"
-          id="upload"
-          style={PUBLIC_EDUCATION_ONLY ? { display: 'none' } : undefined}
-        >
+        <section className="upload-section" id="upload">
           <div className="section-heading">
             <h2>{t.uploadHeading}</h2>
             <p>{t.uploadDescription}</p>
