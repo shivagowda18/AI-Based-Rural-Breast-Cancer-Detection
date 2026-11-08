@@ -6,6 +6,46 @@ image classification, explainable AI and multilingual
 breast-health awareness.
 
 ## Main Features
+## Live Application
+
+Frontend (Cloudflare Pages):
+https://rural-breast-health-ai.pages.dev/
+
+Backend (Render):
+https://rural-breast-ai-backend.onrender.com/
+
+Backend health endpoint:
+https://rural-breast-health-ai.pages.dev/api/health
+
+## Deployment Architecture
+
+React + TypeScript (Cloudflare Pages)
+    |
+    v
+Cloudflare Pages Function (/api/*)
+    |
+    v
+FastAPI Backend (Render)
+    |
+    v
+MobileNetV3-Small (PyTorch CPU)
+    |
+    v
+Prediction + Grad-CAM Heatmap
+
+The deployed application supports:
+- Ultrasound image upload and validation
+- AI classification of approved BUSI demonstration images
+- Grad-CAM visual explanations
+- English, Kannada and Hindi
+- Mobile-responsive interface
+- Progressive Web App (PWA) installation
+
+Production mode restricts AI analysis to approved demo images.
+Experimental testing of additional images is local-only.
+
+Internet connectivity is required for AI inference.
+The PWA can cache the interface for limited offline access.
 
 - Breast ultrasound classification using MobileNetV3-Small
 - Three research classes: Benign, Malignant, Normal
@@ -93,14 +133,18 @@ npm run build
 cd ..
 ```
 
-Before running AI predictions, obtain the trained
-MobileNetV3-Small checkpoint from the project team
-and place it at:
+The selected MobileNetV3-Small checkpoint is included
+in the Git repository at:
 
-artifacts/models/busi_mobilenetv3_best.pth
+`artifacts/models/busi_mobilenetv3_best.pth`
 
-The model checkpoint is intentionally excluded from Git.
-Without it, AI inference and Grad-CAM cannot run.
+The checkpoint is used by both AI prediction and Grad-CAM.
+
+The BUSI training dataset and additional experimental model
+checkpoints are not included in the repository.
+
+Model and dataset redistribution must comply with their
+applicable permissions and licenses.
 
 ## Local Development
 
@@ -146,9 +190,18 @@ Only one server can use port 8000 at a time.
 
 ## Required Local Model Files
 
-The selected model checkpoint must be available at:
+The selected MobileNetV3-Small checkpoint is included
+in the Git repository at:
 
-artifacts/models/busi_mobilenetv3_best.pth
+`artifacts/models/busi_mobilenetv3_best.pth`
+
+The checkpoint is used by both AI prediction and Grad-CAM.
+
+The BUSI training dataset and additional experimental model
+checkpoints are not included in the repository.
+
+Model and dataset redistribution must comply with their
+applicable permissions and licenses.
 
 Approved demonstration-image fingerprints must be at:
 
@@ -156,14 +209,6 @@ backend/app/core/approved_demo_sha256.txt
 
 The approved demonstration-image fingerprint file is included
 in the Git repository.
-
-The trained model checkpoint is intentionally excluded from Git.
-It must be supplied separately by the project team and placed at
-artifacts/models/busi_mobilenetv3_best.pth before AI inference
-or Grad-CAM generation can work.
-
-Do not redistribute model weights or dataset images without
-checking the applicable permissions and licenses.
 
 The allowlist can be generated from a locally available
 BUSI dataset using:
