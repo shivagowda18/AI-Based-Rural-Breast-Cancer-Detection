@@ -104,7 +104,11 @@ The app cannot classify a phone photograph into a meaningful breast-cancer categ
 
 ### 4.1 Architecture Overview
 
-The system has a **React/TypeScript frontend**, a **FastAPI backend**, and **PyTorch services** for MobileNetV3-Small prediction and Grad-CAM. The frontend communicates with API routes under `/api`. In development, Vite proxies `/api` traffic to FastAPI. In local demo mode (`APP_ENV=demo`), FastAPI serves the built frontend and API at the same `127.0.0.1:8000` origin.
+The system consists of a React/TypeScript frontend, a FastAPI backend, and PyTorch services for MobileNetV3-Small classification and Grad-CAM explanations.
+
+The complete research application is deployed using Cloudflare Pages for frontend hosting and Render for the Python AI backend. A Cloudflare Pages Function forwards requests under /api to the Render-hosted FastAPI service.
+
+During local development, Vite forwards API requests to the locally configured FastAPI server. The deployed application supports controlled BUSI demonstration-image analysis, while experimental analysis of additional images remains restricted to explicitly enabled local research testing.
 
 ### 4.2 Major Components
 
@@ -215,7 +219,15 @@ Prediction and Grad-CAM share a SHA-256 approved-file restriction. Original BUSI
 
 ### 6.5 Local Demonstration Setup
 
-For development, run FastAPI and Vite separately, with Vite proxying `/api` to port 8000. For the consolidated local demo, first run `npm run build` in `frontend`, then start FastAPI from `backend` with `APP_ENV=demo`. The demo runs on `http://127.0.0.1:8000/` and serves the compiled frontend and API together. The model checkpoint and approved fingerprint file must be present locally. This arrangement was tested as a **localhost research demo**, not a production public website.
+For local development, FastAPI and Vite run as separate services. The Vite proxy connects to the local FastAPI port configured in frontend/vite.config.ts. Local Research Testing requires explicit configuration and acknowledgement.
+
+The public demonstration is hosted at:
+
+https://rural-breast-health-ai.pages.dev/
+
+Cloudflare Pages serves the React interface and forwards API requests through a Pages Function to the Render-hosted FastAPI backend.
+
+The public backend operates in production mode with unrestricted research analysis disabled. Approved BUSI demonstration images can be validated, classified, and processed for Grad-CAM explanations.
 
 ---
 
@@ -223,11 +235,23 @@ For development, run FastAPI and Vite separately, with Vite proxying `/api` to p
 
 ### 7.1 Automated Software Tests
 
-The recorded backend pytest suite included **33 passing tests**: nine upload-validation tests, ten prediction-route tests, ten Grad-CAM-route tests, and four approved-image rejection regression tests. Some endpoint tests mock inference and allowlist checks to isolate API behaviors; they are not replacements for medical or predictive-performance evaluation. A separate smoke test showed approved BUSI image prediction and Grad-CAM functioning end to end. Frontend `npm run lint` and `npm run build` also completed successfully in the recorded checks.
+The latest recorded automated backend test execution completed successfully with 44 passing pytest tests. The tests cover API behavior, image validation, prediction and explanation workflows, and input restrictions. Some tests use mocked model inference to isolate API functionality and therefore do not constitute independent diagnostic validation.
+
+Frontend ESLint and TypeScript/Vite production builds completed successfully. The PWA service worker and production frontend assets were generated without build errors.
 
 ### 7.2 Browser and Integration Tests
 
 The browser tests verified successful prediction and Grad-CAM generation for original BUSI examples including `benign (2).png`, `malignant (2).png`, `normal (1).png`, and `benign (87).png`. An unrelated JPG photograph was rejected by both AI endpoints with HTTP 422, and the frontend displayed a translated restriction message. Switching images cleared the old prediction and heatmap, reset the confirmation checkbox, and refreshed the preview. The consolidated FastAPI demo server served the website and processed a BUSI example at `127.0.0.1:8000`.
+
+Following deployment, the public application was tested through Cloudflare Pages and the Render-hosted FastAPI backend.
+
+The approved BUSI image benign (4).png was successfully processed by the public prediction endpoint. MobileNetV3-Small returned a benign classification with an experimental model score of 0.9745. The public Grad-CAM endpoint returned HTTP 200 and generated a PNG heatmap of 65,310 bytes.
+
+The Cloudflare-to-Render API connection was verified through the /api/health endpoint. The complete upload, validation, prediction, and Grad-CAM workflow was also tested through the deployed browser interface.
+
+Responsive browser testing was performed using a phone-sized viewport. English, Kannada, and Hindi interfaces were visually checked, including image-analysis controls and result presentation.
+
+These tests establish functional integration of selected research examples, not clinical validity or unrestricted image compatibility.
 
 These examples confirm selected **functional workflows** only. They do not provide additional independent statistical evidence of diagnostic performance.
 
@@ -261,7 +285,11 @@ The test performance is substantially below what would be needed to justify inde
 
 ### 7.6 Security and Privacy Checks
 
-Implemented controls include file integrity/size/dimension checks, an allowlist for image-analysis requests, response headers (`nosniff`, `no-store` for image API responses), and a `stored: false` API response where appropriate. A preliminary source scan did not reveal common hardcoded-secret patterns in scanned directories. Git ignore rules exclude raw datasets, trained checkpoints, and generated explanation images from normal staging. These are **basic controls**, not a comprehensive security audit; the demo has no verified production authentication, rate limiting, TLS termination, or full logging/privacy assessment.
+Implemented controls include file integrity/size/dimension checks, an allowlist for image-analysis requests, response headers (`nosniff`, `no-store` for image API responses), and a `stored: false` API response where appropriate. A preliminary source scan did not reveal common hardcoded-secret patterns in scanned directories. Git ignore rules exclude raw datasets and generated explanation images from normal staging. The selected MobileNetV3-Small checkpoint is included in the repository for reproducible deployment.
+
+The public frontend and backend are accessed through HTTPS. Production AI analysis uses an approved-image SHA-256 restriction, while experimental analysis of additional images remains local-only.
+
+The project does not yet have a comprehensive security audit, verified authentication, rate limiting, formal retention policy, or clinical deployment authorization.
 
 ---
 
@@ -300,7 +328,9 @@ Both false-negative and false-positive predictions can be harmful if misundersto
 
 The AI-Based Rural Breast Cancer Detection project demonstrates an integrated academic workflow combining a lightweight breast ultrasound classifier, Grad-CAM explanation, a React/FastAPI interface, and multilingual breast-health awareness. The project included a documented BUSI dataset audit, a comparison of MobileNetV3-Small and EfficientNet-B0, an untouched held-out test evaluation, a controlled BUSI file allowlist, and software integration tests. The selected model achieved **77.39% held-out accuracy** and **74.19% malignant recall**, missing eight malignant examples out of 31. These findings establish important limitations rather than clinical readiness.
 
-The current deliverable is a functioning **controlled local research demonstration** with educational capabilities. It is not a diagnostic service, is not able to analyze arbitrary external ultrasound scans, and must not replace professional examination, screening, or treatment decisions. Future work should prioritize independent validation, input suitability, clinician-reviewed information, broader accessibility, and secure deployment.
+The current deliverable is a functioning, publicly deployed, controlled academic research demonstration. Its frontend is hosted on Cloudflare Pages, and its FastAPI inference backend is hosted on Render. Approved BUSI images can be uploaded, validated, classified, and visualized using Grad-CAM.
+
+Additional experimental image analysis is restricted to the local Research Testing environment. The system is not clinically validated, cannot reliably assess arbitrary ultrasound scans, and must not replace professional screening, examination, or diagnosis. Future improvements should prioritize external validation, input suitability, stronger security controls, clinician-reviewed educational content, and broader accessibility testing.
 
 ---
 
