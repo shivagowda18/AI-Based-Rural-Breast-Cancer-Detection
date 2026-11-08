@@ -46,8 +46,9 @@ def require_approved_demo_image(
 
     # Explicit, local-only research access.
     research_enabled = (
-        os.getenv("ENABLE_LOCAL_RESEARCH_MODE", "0") == "1"
-    )
+    os.getenv("APP_ENV", "development").lower() != "production"
+    and os.getenv("ENABLE_LOCAL_RESEARCH_MODE", "0") == "1"
+)
 
     local_request = client_host in {
         "127.0.0.1",
