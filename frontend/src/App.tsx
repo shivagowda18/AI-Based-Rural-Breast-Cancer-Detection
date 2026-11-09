@@ -18,9 +18,40 @@ type ProcessState = 'idle' | 'loading' | 'success' | 'error'
 type BackendState = 'checking' | 'connected' | 'unavailable' | 'offline'
 type ValidationDetails = { format: string; width: number; height: number }
 
+const noImageText: Record<Language, {
+  title: string
+  description: string
+  awareness: string
+  symptoms: string
+  risk: string
+}> = {
+  en: {
+    title: "Don't have an ultrasound image?",
+    description: "You can explore breast-health information without uploading an image. If you notice symptoms or have concerns, consult a qualified healthcare professional.",
+    awareness: "Breast Health Awareness",
+    symptoms: "Symptom Guidance",
+    risk: "Risk Factors",
+  },
+  kn: {
+    title: "ಅಲ್ಟ್ರಾಸೌಂಡ್ ಚಿತ್ರ ಇಲ್ಲವೇ?",
+    description: "ಚಿತ್ರವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡದೆಯೇ ಸ್ತನ ಆರೋಗ್ಯದ ಮಾಹಿತಿಯನ್ನು ತಿಳಿದುಕೊಳ್ಳಬಹುದು. ಯಾವುದೇ ಲಕ್ಷಣಗಳು ಅಥವಾ ಕಳವಳಗಳಿದ್ದರೆ ಅರ್ಹ ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+    awareness: "ಸ್ತನ ಆರೋಗ್ಯ ಜಾಗೃತಿ",
+    symptoms: "ಲಕ್ಷಣಗಳ ಮಾರ್ಗದರ್ಶನ",
+    risk: "ಅಪಾಯದ ಅಂಶಗಳು",
+  },
+  hi: {
+    title: "अल्ट्रासाउंड की तस्वीर नहीं है?",
+    description: "आप बिना तस्वीर अपलोड किए स्तन स्वास्थ्य की जानकारी प्राप्त कर सकते हैं। कोई लक्षण या चिंता होने पर योग्य स्वास्थ्य विशेषज्ञ से परामर्श लें।",
+    awareness: "स्तन स्वास्थ्य जागरूकता",
+    symptoms: "लक्षणों पर मार्गदर्शन",
+    risk: "जोखिम कारक",
+  },
+}
+
 function App() {
   const [language, setLanguage] = useState<Language>('en')
   const t = translations[language]
+  const noImage = noImageText[language]
 
   const [backendState, setBackendState] = useState<BackendState>('checking')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
@@ -324,6 +355,20 @@ function App() {
           <h1>{t.heroTitle}</h1>
           <p>{t.heroDescription}</p>
           <a className="primary-link" href="#modules">{t.exploreModules}</a>
+        </section>
+
+        <section
+          className="no-image-section"
+          aria-labelledby="no-image-heading"
+        >
+          <h2 id="no-image-heading">{noImage.title}</h2>
+          <p>{noImage.description}</p>
+
+          <div className="no-image-links">
+            <a href="#awareness">{noImage.awareness}</a>
+            <a href="#symptom-guidance">{noImage.symptoms}</a>
+            <a href="#risk-awareness">{noImage.risk}</a>
+          </div>
         </section>
 
         <section className="upload-section" id="upload">
