@@ -58,10 +58,10 @@ function App() {
   const aiQuery = analysisMode === 'research' ? '?research_acknowledged=true' : ''
 
   const modules = [
-    { title: t.aiModuleTitle, description: t.aiModuleDescription, status: t.inDevelopment },
-    { title: t.explainModuleTitle, description: t.explainModuleDescription, status: t.inDevelopment },
-    { title: t.awarenessModuleTitle, description: t.awarenessModuleDescription, status: t.planned },
-    { title: t.languageModuleTitle, description: t.languageModuleDescription, status: t.inDevelopment },
+    { title: t.aiModuleTitle, description: t.aiModuleDescription },
+    { title: t.explainModuleTitle, description: t.explainModuleDescription },
+    { title: t.awarenessModuleTitle, description: t.awarenessModuleDescription },
+    { title: t.languageModuleTitle, description: t.languageModuleDescription },
   ]
 
   const statusLabel = {
@@ -537,7 +537,6 @@ function App() {
                 <span className="module-number">{String(index + 1).padStart(2, '0')}</span>
                 <h3>{module.title}</h3>
                 <p>{module.description}</p>
-                <span className="module-status">{module.status}</span>
               </article>
             ))}
           </div>
