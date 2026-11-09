@@ -294,20 +294,53 @@ function App() {
   }
 
   useEffect(() => {
-    const controller = new AbortController()
-    fetch('/api/health', { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error('Backend health check failed')
-        return response.json()
-      })
-      .then((data) => {
-        setBackendState(data.status === 'healthy' ? 'connected' : 'unavailable')
-      })
-      .catch((error: unknown) => {
-        if (error instanceof Error && error.name === 'AbortError') return
+    let active = true
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+    let controller: AbortController | undefined
+
+    const checkBackend = async () => {
+      controller = new AbortController()
+
+      try {
+        const response = await fetch('/api/health', {
+          signal: controller.signal,
+          cache: 'no-store',
+        })
+
+        if (!response.ok) {
+          throw new Error('Backend health check failed')
+        }
+
+        const data: { status?: string } = await response.json()
+
+        if (!active) return
+
+        setBackendState(
+          data.status === 'healthy'
+            ? 'connected'
+            : 'unavailable'
+        )
+      } catch {
+        if (!active) return
         setBackendState('offline')
-      })
-    return () => controller.abort()
+      }
+
+      if (active) {
+        retryTimer = setTimeout(() => {
+          void checkBackend()
+        }, 30000)
+      }
+    }
+
+    void checkBackend()
+
+    return () => {
+      active = false
+      if (retryTimer !== undefined) {
+        clearTimeout(retryTimer)
+      }
+      controller?.abort()
+    }
   }, [])
 
   return (
