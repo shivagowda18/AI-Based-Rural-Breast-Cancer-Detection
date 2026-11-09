@@ -718,3 +718,480 @@ a {
     width: 100%;
   }
 }
+
+/* STEP 60.3 — Premium Healthcare UI Foundation */
+
+:root {
+  --ui-navy: #102d43;
+  --ui-teal: #0d8b85;
+  --ui-text: #19364a;
+  --ui-border: #e0eaf0;
+  --ui-surface: #ffffff;
+}
+
+body {
+  background: #f6f9fc;
+  color: var(--ui-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-layout {
+  width: 100%;
+}
+
+.sidebar {
+  background: linear-gradient(
+    165deg,
+    #0b2336 0%,
+    #103a4c 100%
+  );
+}
+
+.brand-icon {
+  background: linear-gradient(
+    135deg,
+    #16b8aa,
+    #087d84
+  );
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.14);
+}
+
+.sidebar nav a {
+  border: 1px solid transparent;
+  font-weight: 600;
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a:focus-visible {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.main-content {
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      #e8f7f5 0%,
+      transparent 32%
+    ),
+    #f7fafc;
+}
+
+.topbar {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.hero {
+  background:
+    radial-gradient(
+      circle at 95% 10%,
+      rgba(52, 211, 194, 0.22),
+      transparent 40%
+    ),
+    linear-gradient(
+      120deg,
+      #0b293d,
+      #10566a 65%,
+      #087e7b
+    );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 40px rgba(16, 45, 67, 0.13);
+}
+
+.hero h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.hero p {
+  line-height: 1.75;
+}
+
+.primary-link {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.10);
+}
+
+.module-card,
+.upload-section {
+  background: var(--ui-surface);
+  border-color: var(--ui-border);
+  box-shadow: 0 5px 24px rgba(15, 44, 65, 0.045);
+}
+
+.module-card {
+  transition: transform 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(15, 44, 65, 0.10);
+}
+
+.no-image-section {
+  background: linear-gradient(
+    135deg,
+    #effbf8,
+    #e6f5f3
+  );
+}
+
+@media (min-width: 801px) {
+  .main-content {
+    padding: 36px clamp(28px, 4vw, 72px) 72px;
+  }
+
+  .hero {
+    padding: clamp(36px, 4vw, 64px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .module-card,
+  .sidebar nav a {
+    transition: none;
+  }
+}
+
+/* STEP 60.6 — Premium AI Workspace */
+
+.upload-section {
+  padding: clamp(22px, 3vw, 38px);
+  border: 1px solid #dae7ec;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 12px 38px rgba(19, 56, 76, 0.06);
+}
+
+.upload-card {
+  grid-template-columns:
+    minmax(0, 1.05fr)
+    minmax(0, 0.95fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.upload-controls {
+  min-width: 0;
+  padding: 24px;
+  background: linear-gradient(
+    145deg,
+    #f8fcfc,
+    #eef8f7
+  );
+  border: 1px solid #d6e9e7;
+  border-radius: 18px;
+}
+
+.analysis-mode-selector {
+  background: #ffffff;
+  border: 1px solid #cde0e4;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.upload-input {
+  width: 100%;
+  background: #ffffff;
+  padding: 18px;
+  border: 2px dashed #80c5c0;
+  border-radius: 14px;
+  color: #456174;
+  transition: border-color 0.2s ease;
+}
+
+.upload-input:hover {
+  border-color: #087f7b;
+}
+
+.upload-input:focus-visible {
+  outline: 3px solid #0a827c;
+  outline-offset: 3px;
+}
+
+.upload-input::file-selector-button {
+  margin-right: 14px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: #0e7574;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.upload-input::file-selector-button:hover {
+  background: #095b5b;
+}
+
+.upload-preview {
+  min-width: 0;
+  min-height: 310px;
+  padding: 24px;
+  border: 1px solid #cfe2e6;
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      #ffffff,
+      transparent 65%
+    ),
+    linear-gradient(
+      145deg,
+      #edf7f8,
+      #e6f0f5
+    );
+  box-shadow: inset 0 0 0 5px rgba(255,255,255,0.45);
+}
+
+.upload-preview img {
+  max-height: 320px;
+  border-radius: 12px;
+  box-shadow: 0 8px 26px rgba(15, 45, 63, 0.12);
+}
+
+.upload-button {
+  border-radius: 11px;
+  background: linear-gradient(135deg, #0e8580, #095b70);
+  box-shadow: 0 5px 15px rgba(10, 100, 110, 0.15);
+}
+
+.upload-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #096d69, #07495c);
+}
+
+/* Premium Project Module Cards */
+
+.module-grid {
+  gap: 22px;
+}
+
+.module-card {
+  position: relative;
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid #dce8ee;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(16, 48, 69, 0.055);
+}
+
+.module-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 28px;
+  right: 28px;
+  height: 3px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(90deg, #0cae9f, #89d9d2);
+}
+
+.module-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #e8f7f5;
+  color: #087b76;
+}
+
+.module-card h3 {
+  color: #143549;
+  letter-spacing: -0.015em;
+}
+
+/* Responsive refinements */
+
+@media (max-width: 800px) {
+  .upload-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .upload-controls {
+    padding: 18px;
+  }
+
+  .upload-preview {
+    min-height: 220px;
+  }
+
+  .module-card {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 600px) {
+  .upload-section {
+    padding: 18px;
+  }
+
+  .upload-input {
+    padding: 12px;
+  }
+
+  .upload-input::file-selector-button {
+    padding: 10px 12px;
+  }
+}
+
+
+/* Parts 1 & 2 — Welcoming start screen and separate sidebar views. */
+.brand:focus-visible {
+  outline: 3px solid #9ee6d9;
+  outline-offset: 5px;
+  border-radius: 10px;
+}
+
+.sidebar nav a[aria-current="page"] {
+  background: rgba(54, 205, 188, 0.16);
+  border-color: rgba(130, 232, 221, 0.55);
+  color: #ffffff;
+}
+
+.welcome-screen {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(740px, calc(100dvh - 165px));
+  padding: clamp(40px, 7vw, 90px) clamp(24px, 6vw, 72px);
+  overflow: hidden;
+  border: 1px solid #deedea;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 17% 15%, rgba(45, 190, 168, 0.13), transparent 37%),
+    radial-gradient(circle at 85% 83%, rgba(66, 152, 186, 0.11), transparent 36%),
+    linear-gradient(155deg, #ffffff 0%, #f3fbf9 65%, #edf7fa 100%);
+  box-shadow: 0 22px 64px rgba(16, 49, 67, 0.055);
+  text-align: center;
+}
+
+.welcome-screen-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 760px;
+}
+
+.welcome-screen .eyebrow {
+  display: inline-block;
+  padding: 9px 15px;
+  border: 1px solid #d5ebe7;
+  border-radius: 999px;
+  background: #eaf7f4;
+  color: #0b7471;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.welcome-screen h1 {
+  margin: 28px auto 20px;
+  max-width: 750px;
+  color: #15394d;
+  font-size: clamp(32px, 4.3vw, 62px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.13;
+  text-wrap: balance;
+}
+
+.welcome-screen p {
+  margin: 0 auto;
+  max-width: 630px;
+  color: #527080;
+  font-size: clamp(15px, 1.35vw, 18px);
+  line-height: 1.8;
+}
+
+.welcome-screen .primary-link {
+  margin-top: 30px;
+  padding: 14px 26px;
+  border: 1px solid #0c7575;
+  border-radius: 12px;
+  background: #0b7775;
+  color: #ffffff;
+  transition: background-color .2s ease, transform .2s ease;
+}
+
+.welcome-screen .primary-link:hover,
+.welcome-screen .primary-link:focus-visible {
+  background: #095d60;
+}
+
+.welcome-screen .primary-link:focus-visible {
+  outline: 3px solid #0a827c;
+  outline-offset: 4px;
+}
+
+.overview-view {
+  min-width: 0;
+}
+
+.overview-view .hero {
+  margin-top: 0;
+}
+
+#overview, #upload, #modules, #about,
+#awareness, #symptom-guidance, #risk-awareness {
+  scroll-margin-top: 18px;
+}
+
+/* Only the view that's selected is mounted; upload controls are unchanged. */
+@media (max-width: 800px) {
+  .welcome-screen {
+    min-height: 480px;
+    padding: 48px 25px;
+  }
+}
+
+@media (max-width: 600px) {
+  .welcome-screen {
+    min-height: 420px;
+    padding: 38px 20px;
+    border-radius: 18px;
+  }
+  .welcome-screen h1 {
+    font-size: clamp(30px, 8vw, 42px);
+  }
+  .welcome-screen p {
+    font-size: 14px;
+  }
+  .welcome-screen .primary-link {
+    width: 100%;
+    max-width: 260px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-screen .primary-link {
+    transition: none;
+  }
+}
+
+
+/* Make awareness, symptom guidance, and risk factors dedicated views. */
+.guidance-view { min-width: 0; }
+.guidance-back {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 6px;
+  padding: 10px 16px;
+  margin: 0 0 22px;
+  color: #116c6e;
+  background: #e7f5f2;
+  border: 1px solid #c7e5e0;
+  border-radius: 10px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.guidance-back:hover { background: #d7efea; }
+.guidance-back:focus-visible { outline: 3px solid #116c6e; outline-offset: 3px; }

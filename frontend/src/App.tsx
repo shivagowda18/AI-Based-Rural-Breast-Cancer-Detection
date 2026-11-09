@@ -48,8 +48,33 @@ const noImageText: Record<Language, {
   },
 }
 
+type Page = 'welcome' | 'overview' | 'awareness' | 'symptom-guidance' | 'risk-awareness' | 'upload' | 'modules' | 'about'
+
+// Preserve the original #section links as direct, bookmarkable navigation.
+const getPageFromHash = (hash: string): Page => {
+  switch (hash) {
+    case '#overview':
+      return 'overview'
+    case '#awareness':
+      return 'awareness'
+    case '#symptom-guidance':
+      return 'symptom-guidance'
+    case '#risk-awareness':
+      return 'risk-awareness'
+    case '#upload':
+      return 'upload'
+    case '#modules':
+      return 'modules'
+    case '#about':
+      return 'about'
+    default:
+      return 'welcome'
+  }
+}
+
 function App() {
   const [language, setLanguage] = useState<Language>('en')
+  const [activePage, setActivePage] = useState<Page>(() => getPageFromHash(window.location.hash))
   const t = translations[language]
   const noImage = noImageText[language]
 
@@ -77,6 +102,30 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = language
   }, [language])
+
+  // Hash links preserve browser history, existing deep links, and refreshes.
+  useEffect(() => {
+    const syncPage = () => setActivePage(getPageFromHash(window.location.hash))
+    window.addEventListener('hashchange', syncPage)
+    window.addEventListener('popstate', syncPage)
+    return () => {
+      window.removeEventListener('hashchange', syncPage)
+      window.removeEventListener('popstate', syncPage)
+    }
+  }, [])
+
+  // A target may be mounted only after its view becomes active.
+  useEffect(() => {
+    const targetId = window.location.hash.substring(1)
+    if (!targetId) {
+      window.scrollTo(0, 0)
+      return
+    }
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [activePage])
 
   const isUploading = uploadState === 'loading'
   const isPredicting = predictionState === 'loading'
@@ -346,25 +395,25 @@ function App() {
   return (
     <div className="app-layout">
       <aside className="sidebar">
-        <div className="brand">
+        <a className="brand" href="#home" aria-label={t.title}>
           <div className="brand-icon">+</div>
           <div>
             <strong>{t.title}</strong>
             <small>{t.brandSubtitle}</small>
           </div>
-        </div>
+        </a>
 
         <nav aria-label={t.modulesHeading}>
-          <a href="#overview">{t.overview}</a>
-          <a href="#upload">{t.upload}</a>
-          <a href="#modules">{t.modules}</a>
-          <a href="#about">{t.about}</a>
+          <a href="#overview" aria-current={['overview', 'awareness', 'symptom-guidance', 'risk-awareness'].includes(activePage) ? 'page' : undefined}>{t.overview}</a>
+          <a href="#upload" aria-current={activePage === 'upload' ? 'page' : undefined}>{t.upload}</a>
+          <a href="#modules" aria-current={activePage === 'modules' ? 'page' : undefined}>{t.modules}</a>
+          <a href="#about" aria-current={activePage === 'about' ? 'page' : undefined}>{t.about}</a>
         </nav>
 
         <p className="sidebar-footer">{t.sidebarFooter}</p>
       </aside>
 
-      <main className="main-content" id="overview">
+      <main className="main-content">
         <header className="topbar">
           <span>{t.title}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -383,251 +432,291 @@ function App() {
           </div>
         </header>
 
-        <section className="hero">
-          <span className="eyebrow">{t.heroTag}</span>
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroDescription}</p>
-          <a className="primary-link" href="#modules">{t.exploreModules}</a>
-        </section>
+        {activePage === 'welcome' && (
+          <section className="welcome-screen" id="home" aria-label={t.title}>
+            <div className="welcome-screen-content">
+              <span className="eyebrow">{t.heroTag}</span>
+              <h1>{t.heroTitle}</h1>
+              <p>{t.heroDescription}</p>
+              <a className="primary-link" href="#overview">{t.overview}</a>
+            </div>
+          </section>
+        )}
 
-        <section
-          className="no-image-section"
-          aria-labelledby="no-image-heading"
-        >
-          <h2 id="no-image-heading">{noImage.title}</h2>
-          <p>{noImage.description}</p>
+        {activePage === 'overview' && (
+          <div className="overview-view" id="overview">
+            <section className="hero">
+              <span className="eyebrow">{t.heroTag}</span>
+              <h1>{t.heroTitle}</h1>
+              <p>{t.heroDescription}</p>
+              <a className="primary-link" href="#modules">{t.exploreModules}</a>
+            </section>
 
-          <div className="no-image-links">
-            <a href="#awareness">{noImage.awareness}</a>
-            <a href="#symptom-guidance">{noImage.symptoms}</a>
-            <a href="#risk-awareness">{noImage.risk}</a>
+            <section
+              className="no-image-section"
+              aria-labelledby="no-image-heading"
+            >
+              <h2 id="no-image-heading">{noImage.title}</h2>
+              <p>{noImage.description}</p>
+
+              <div className="no-image-links">
+                <a href="#awareness">{noImage.awareness}</a>
+                <a href="#symptom-guidance">{noImage.symptoms}</a>
+                <a href="#risk-awareness">{noImage.risk}</a>
+              </div>
+            </section>
+
           </div>
-        </section>
+        )}
 
-        <section className="upload-section" id="upload">
-          <div className="section-heading">
-            <h2>{t.uploadHeading}</h2>
-            <p>{t.uploadDescription}</p>
+        {activePage === 'awareness' && (
+          <div className="guidance-view">
+            <a className="guidance-back" href="#overview">← {t.overview}</a>
+            <BreastAwareness language={language} />
           </div>
+        )}
 
-          <div className="upload-card">
-            <div className="upload-controls">
-              <fieldset className="analysis-mode-selector" disabled={busy}>
-                <legend>{t.analysisModeTitle}</legend>
-                <div className="analysis-mode-options">
-                  <label className="analysis-mode-option">
-                    <input
-                      type="radio"
-                      name="analysis-mode"
-                      value="demo"
-                      checked={analysisMode === 'demo'}
-                      onChange={() => changeAnalysisMode('demo')}
-                    />
-                    <span>{t.demoMode}</span>
-                  </label>
-                  <label className="analysis-mode-option">
-                    <input
-                      type="radio"
-                      name="analysis-mode"
-                      value="research"
-                      checked={analysisMode === 'research'}
-                      onChange={() => changeAnalysisMode('research')}
-                    />
-                    <span>{t.researchMode}</span>
-                  </label>
-                </div>
-                <p className="analysis-mode-help">
-                  {analysisMode === 'demo' ? t.demoModeHelp : t.researchModeHelp}
-                </p>
-              </fieldset>
+        {activePage === 'symptom-guidance' && (
+          <div className="guidance-view">
+            <a className="guidance-back" href="#overview">← {t.overview}</a>
+            <SymptomGuidance language={language} />
+          </div>
+        )}
 
-              <label htmlFor="medical-image">{t.selectImage}</label>
-              <input
-                id="medical-image"
-                className="upload-input"
-                type="file"
-                accept=".png,.jpg,.jpeg"
-                onChange={handleImageChange}
-                disabled={busy}
-              />
-              <p className="upload-hint">{t.acceptedFormats}</p>
+        {activePage === 'risk-awareness' && (
+          <div className="guidance-view">
+            <a className="guidance-back" href="#overview">← {t.overview}</a>
+            <RiskFactors language={language} />
+          </div>
+        )}
 
-              {imageError && (
-                <p className="upload-error" role="alert">
-                  {imageError === 'type' ? t.invalidFileType : t.imageTooLarge}
-                </p>
-              )}
+        {activePage === 'upload' && (
+          <section className="upload-section" id="upload">
+            <div className="section-heading">
+              <h2>{t.uploadHeading}</h2>
+              <p>{t.uploadDescription}</p>
+            </div>
 
-              {selectedImage && (
-                <div className="file-details">
-                  <p><strong>{t.file}:</strong> {selectedImage.name}</p>
-                  <p><strong>{t.size}:</strong> {(selectedImage.size / 1024).toFixed(2)} KB</p>
-                  <span className="upload-success">{t.imageSelected}</span>
+            <div className="upload-card">
+              <div className="upload-controls">
+                <fieldset className="analysis-mode-selector" disabled={busy}>
+                  <legend>{t.analysisModeTitle}</legend>
+                  <div className="analysis-mode-options">
+                    <label className="analysis-mode-option">
+                      <input
+                        type="radio"
+                        name="analysis-mode"
+                        value="demo"
+                        checked={analysisMode === 'demo'}
+                        onChange={() => changeAnalysisMode('demo')}
+                      />
+                      <span>{t.demoMode}</span>
+                    </label>
+                    <label className="analysis-mode-option">
+                      <input
+                        type="radio"
+                        name="analysis-mode"
+                        value="research"
+                        checked={analysisMode === 'research'}
+                        onChange={() => changeAnalysisMode('research')}
+                      />
+                      <span>{t.researchMode}</span>
+                    </label>
+                  </div>
+                  <p className="analysis-mode-help">
+                    {analysisMode === 'demo' ? t.demoModeHelp : t.researchModeHelp}
+                  </p>
+                </fieldset>
 
-                  <label
-                    htmlFor="confirm-ultrasound"
-                    style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '12px 0' }}
-                  >
-                    <input
-                      id="confirm-ultrasound"
-                      type="checkbox"
-                      checked={confirmedUltrasound}
+                <label htmlFor="medical-image">{t.selectImage}</label>
+                <input
+                  id="medical-image"
+                  className="upload-input"
+                  type="file"
+                  accept=".png,.jpg,.jpeg"
+                  onChange={handleImageChange}
+                  disabled={busy}
+                />
+                <p className="upload-hint">{t.acceptedFormats}</p>
+
+                {imageError && (
+                  <p className="upload-error" role="alert">
+                    {imageError === 'type' ? t.invalidFileType : t.imageTooLarge}
+                  </p>
+                )}
+
+                {selectedImage && (
+                  <div className="file-details">
+                    <p><strong>{t.file}:</strong> {selectedImage.name}</p>
+                    <p><strong>{t.size}:</strong> {(selectedImage.size / 1024).toFixed(2)} KB</p>
+                    <span className="upload-success">{t.imageSelected}</span>
+
+                    <label
+                      htmlFor="confirm-ultrasound"
+                      style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '12px 0' }}
+                    >
+                      <input
+                        id="confirm-ultrasound"
+                        type="checkbox"
+                        checked={confirmedUltrasound}
+                        disabled={busy}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          setConfirmedUltrasound(event.target.checked)
+                          if (!event.target.checked) resetAnalysis()
+                        }}
+                      />
+                      <span>{t.confirmUltrasound}</span>
+                    </label>
+
+                    {analysisMode === 'research' && (
+                      <div className="research-acknowledgement">
+                        <p className="research-warning">{t.researchWarning}</p>
+                        <label htmlFor="research-acknowledge" className="research-check-label">
+                          <input
+                            id="research-acknowledge"
+                            type="checkbox"
+                            checked={researchAcknowledged}
+                            disabled={busy}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                              setResearchAcknowledged(event.target.checked)
+                              resetAnalysis()
+                            }}
+                          />
+                          <span>{t.researchConsent}</span>
+                        </label>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="upload-button"
+                      onClick={uploadToBackend}
                       disabled={busy}
-                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                        setConfirmedUltrasound(event.target.checked)
-                        if (!event.target.checked) resetAnalysis()
-                      }}
+                    >
+                      {isUploading ? t.validating : t.validateImage}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="upload-button"
+                      onClick={analyzeImage}
+                      disabled={!canAnalyze}
+                    >
+                      {isPredicting ? t.analyzing : t.analyze}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="upload-button"
+                      onClick={generateGradcam}
+                      disabled={!canAnalyze}
+                    >
+                      {isExplaining ? t.generatingHeatmap : t.explain}
+                    </button>
+                  </div>
+                )}
+
+                {uploadState === 'loading' && <p className="upload-feedback" role="status">{t.validatingStatus}</p>}
+                {uploadState === 'success' && validatedDetails && (
+                  <p className="upload-feedback" role="status">
+                    {t.fileFormatVerified} {t.fileFormat}: {validatedDetails.format}.{' '}
+                    {t.dimensions}: {validatedDetails.width} × {validatedDetails.height}.{' '}
+                    {t.validationOnlyNotice}
+                  </p>
+                )}
+                {uploadState === 'error' && (
+                  <p className="upload-error" role="alert">{requestErrorText(uploadErrorCode)}</p>
+                )}
+
+                {predictionState === 'loading' && <p className="upload-feedback" role="status">{t.analyzingStatus}</p>}
+                {predictionState === 'success' && <p className="upload-feedback" role="status">{t.analysisCompleted}</p>}
+                {predictionState === 'error' && (
+                  <p className="upload-error" role="alert">
+                    {predictionErrorCode === -1 ? t.invalidPredictionResponse : requestErrorText(predictionErrorCode, true)}
+                  </p>
+                )}
+
+                {gradcamState === 'loading' && <p className="upload-feedback" role="status">{t.heatmapStatus}</p>}
+                {gradcamState === 'success' && <p className="upload-feedback" role="status">{t.heatmapCompleted}</p>}
+                {gradcamState === 'error' && (
+                  <p className="upload-error" role="alert">
+                    {gradcamErrorCode === -1 ? t.invalidHeatmapResponse : requestErrorText(gradcamErrorCode, true)}
+                  </p>
+                )}
+
+                {gradcamUrl && (
+                  <div className="gradcam-result">
+                    <h3>{t.gradcamHeading}</h3>
+                    <img
+                      src={gradcamUrl}
+                      alt={t.gradcamAlt}
+                      style={{ width: '100%', maxWidth: '224px', height: 'auto', borderRadius: '8px' }}
                     />
-                    <span>{t.confirmUltrasound}</span>
-                  </label>
+                    <p className="upload-disclaimer">{t.gradcamNotice}</p>
+                  </div>
+                )}
 
-                  {analysisMode === 'research' && (
-                    <div className="research-acknowledgement">
-                      <p className="research-warning">{t.researchWarning}</p>
-                      <label htmlFor="research-acknowledge" className="research-check-label">
-                        <input
-                          id="research-acknowledge"
-                          type="checkbox"
-                          checked={researchAcknowledged}
-                          disabled={busy}
-                          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                            setResearchAcknowledged(event.target.checked)
-                            resetAnalysis()
-                          }}
-                        />
-                        <span>{t.researchConsent}</span>
-                      </label>
-                    </div>
-                  )}
+                {predictionResult && (
+                  <div className="file-details" aria-label={t.analysisResult}>
+                    <h3>{t.analysisResult}</h3>
+                    <p className="result-mode-tag">{analysisMode === 'research' ? t.researchMode : t.demoMode}</p>
+                    <p>
+                      <strong>{t.predictedClass}:</strong>{' '}
+                      {translatedClass(predictionResult.predicted_class)}
+                      <span className="category-explanation">
+                        {' '}— {categoryExplanation(predictionResult.predicted_class)}
+                      </span>
+                    </p>
+                    <p><strong>{t.modelScores}:</strong></p>
+                    {Object.entries(predictionResult.model_scores).map(([label, score]) => (
+                      <p key={label}>{translatedClass(label)}: {Number(score).toFixed(4)}</p>
+                    ))}
+                    <p>
+                      <strong>{t.imageStored}:</strong>{' '}
+                      {predictionResult.stored ? t.yes : t.no}
+                    </p>
+                    <p className="upload-disclaimer">{t.medicalNotice}</p>
+                  </div>
+                )}
+              </div>
 
-                  <button
-                    type="button"
-                    className="upload-button"
-                    onClick={uploadToBackend}
-                    disabled={busy}
-                  >
-                    {isUploading ? t.validating : t.validateImage}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="upload-button"
-                    onClick={analyzeImage}
-                    disabled={!canAnalyze}
-                  >
-                    {isPredicting ? t.analyzing : t.analyze}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="upload-button"
-                    onClick={generateGradcam}
-                    disabled={!canAnalyze}
-                  >
-                    {isExplaining ? t.generatingHeatmap : t.explain}
-                  </button>
-                </div>
-              )}
-
-              {uploadState === 'loading' && <p className="upload-feedback" role="status">{t.validatingStatus}</p>}
-              {uploadState === 'success' && validatedDetails && (
-                <p className="upload-feedback" role="status">
-                  {t.fileFormatVerified} {t.fileFormat}: {validatedDetails.format}.{' '}
-                  {t.dimensions}: {validatedDetails.width} × {validatedDetails.height}.{' '}
-                  {t.validationOnlyNotice}
-                </p>
-              )}
-              {uploadState === 'error' && (
-                <p className="upload-error" role="alert">{requestErrorText(uploadErrorCode)}</p>
-              )}
-
-              {predictionState === 'loading' && <p className="upload-feedback" role="status">{t.analyzingStatus}</p>}
-              {predictionState === 'success' && <p className="upload-feedback" role="status">{t.analysisCompleted}</p>}
-              {predictionState === 'error' && (
-                <p className="upload-error" role="alert">
-                  {predictionErrorCode === -1 ? t.invalidPredictionResponse : requestErrorText(predictionErrorCode, true)}
-                </p>
-              )}
-
-              {gradcamState === 'loading' && <p className="upload-feedback" role="status">{t.heatmapStatus}</p>}
-              {gradcamState === 'success' && <p className="upload-feedback" role="status">{t.heatmapCompleted}</p>}
-              {gradcamState === 'error' && (
-                <p className="upload-error" role="alert">
-                  {gradcamErrorCode === -1 ? t.invalidHeatmapResponse : requestErrorText(gradcamErrorCode, true)}
-                </p>
-              )}
-
-              {gradcamUrl && (
-                <div className="gradcam-result">
-                  <h3>{t.gradcamHeading}</h3>
-                  <img
-                    src={gradcamUrl}
-                    alt={t.gradcamAlt}
-                    style={{ width: '100%', maxWidth: '224px', height: 'auto', borderRadius: '8px' }}
-                  />
-                  <p className="upload-disclaimer">{t.gradcamNotice}</p>
-                </div>
-              )}
-
-              {predictionResult && (
-                <div className="file-details" aria-label={t.analysisResult}>
-                  <h3>{t.analysisResult}</h3>
-                  <p className="result-mode-tag">{analysisMode === 'research' ? t.researchMode : t.demoMode}</p>
-                  <p>
-                    <strong>{t.predictedClass}:</strong>{' '}
-                    {translatedClass(predictionResult.predicted_class)}
-                    <span className="category-explanation">
-                      {' '}— {categoryExplanation(predictionResult.predicted_class)}
-                    </span>
-                  </p>
-                  <p><strong>{t.modelScores}:</strong></p>
-                  {Object.entries(predictionResult.model_scores).map(([label, score]) => (
-                    <p key={label}>{translatedClass(label)}: {Number(score).toFixed(4)}</p>
-                  ))}
-                  <p>
-                    <strong>{t.imageStored}:</strong>{' '}
-                    {predictionResult.stored ? t.yes : t.no}
-                  </p>
-                  <p className="upload-disclaimer">{t.medicalNotice}</p>
-                </div>
-              )}
+              <div className="upload-preview">
+                {previewUrl ? (
+                  <img src={previewUrl} alt={t.imagePreviewAlt} />
+                ) : (
+                  <p>{t.previewPlaceholder}</p>
+                )}
+              </div>
             </div>
+            <p className="upload-disclaimer">{t.aiUsageNotice}</p>
+          </section>
+        )}
 
-            <div className="upload-preview">
-              {previewUrl ? (
-                <img src={previewUrl} alt={t.imagePreviewAlt} />
-              ) : (
-                <p>{t.previewPlaceholder}</p>
-              )}
+        {activePage === 'modules' && (
+          <section id="modules" className="modules-section">
+            <div className="section-heading">
+              <h2>{t.modulesHeading}</h2>
+              <p>{t.modulesDescription}</p>
             </div>
-          </div>
-          <p className="upload-disclaimer">{t.aiUsageNotice}</p>
-        </section>
+            <div className="module-grid">
+              {modules.map((module, index) => (
+                <article className="module-card" key={index}>
+                  <span className="module-number">{String(index + 1).padStart(2, '0')}</span>
+                  <h3>{module.title}</h3>
+                  <p>{module.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
 
-        <section id="modules" className="modules-section">
-          <div className="section-heading">
-            <h2>{t.modulesHeading}</h2>
-            <p>{t.modulesDescription}</p>
-          </div>
-          <div className="module-grid">
-            {modules.map((module, index) => (
-              <article className="module-card" key={index}>
-                <span className="module-number">{String(index + 1).padStart(2, '0')}</span>
-                <h3>{module.title}</h3>
-                <p>{module.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+        )}
 
-        <BreastAwareness language={language} />
-        <SymptomGuidance language={language} />
-        <RiskFactors language={language} />
-
-        <section className="notice" id="about">
-          <strong>{t.projectNoticeTitle}</strong>
-          <p>{t.projectNoticeText}</p>
-        </section>
+        {activePage === 'about' && (
+          <section className="notice" id="about">
+            <strong>{t.projectNoticeTitle}</strong>
+            <p>{t.projectNoticeText}</p>
+          </section>
+        )}
       </main>
     </div>
   )
