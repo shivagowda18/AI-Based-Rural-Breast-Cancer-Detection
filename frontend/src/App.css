@@ -670,6 +670,7 @@ a {
 .no-image-section h2 {
   margin: 0 0 12px;
   font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  color: #173c45;
 }
 
 .no-image-section p {
