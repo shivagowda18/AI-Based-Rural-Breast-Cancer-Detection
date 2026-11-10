@@ -46,18 +46,29 @@ async def predict_ultrasound(
                 detail="Image must be 10 MiB or less.",
             )
 
-        # Validate image contents.
-        with Image.open(BytesIO(contents)) as image:
-            image_format = image.format
-            width, height = image.size
+        # Distinguish invalid uploads from failures during AI inference.
+        try:
+            with Image.open(BytesIO(contents)) as image:
+                image_format = image.format
+                width, height = image.size
 
-            if width * height > 20_000_000:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Image dimensions are too large.",
-                )
+                if width * height > 20_000_000:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Image dimensions are too large.",
+                    )
 
-            image.verify()
+                image.verify()
+        except (
+            UnidentifiedImageError,
+            OSError,
+            ValueError,
+            Image.DecompressionBombError,
+        ) as exc:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid or corrupted image.",
+            ) from exc
 
         # Confirm file content matches declared type.
         if image_format != ALLOWED_TYPES[file.content_type]:
@@ -91,17 +102,6 @@ async def predict_ultrasound(
 
     except HTTPException:
         raise
-
-    except (
-        UnidentifiedImageError,
-        OSError,
-        ValueError,
-        Image.DecompressionBombError,
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid or corrupted image.",
-        )
 
     except Exception:
         logger.exception("AI prediction failed")

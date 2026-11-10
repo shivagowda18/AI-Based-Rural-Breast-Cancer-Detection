@@ -146,3 +146,24 @@ def test_gradcam_unavailable():
     assert response.json()["detail"] == (
         "Grad-CAM is temporarily unavailable."
     )
+
+@pytest.mark.parametrize("service_error", [
+    ValueError("Invalid Grad-CAM configuration"),
+    OSError("Model checkpoint cannot be read"),
+])
+def test_gradcam_internal_error_is_not_reported_as_bad_image(service_error):
+    content = make_image("PNG")
+
+    with (
+        patch("app.api.explanations.require_approved_demo_image"),
+        patch(
+            "app.api.explanations.generate_gradcam_png",
+            side_effect=service_error,
+        ),
+    ):
+        response = send_explanation(content, "test.png", "image/png")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Grad-CAM is temporarily unavailable."
+    )

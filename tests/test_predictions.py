@@ -186,3 +186,24 @@ def test_model_unavailable():
     assert response.json()["detail"] == (
         "AI prediction is temporarily unavailable."
     )
+
+@pytest.mark.parametrize("service_error", [
+    ValueError("Invalid checkpoint configuration"),
+    OSError("Model checkpoint cannot be read"),
+])
+def test_predictor_internal_error_is_not_reported_as_bad_image(service_error):
+    content = make_image("PNG")
+
+    with (
+        patch("app.api.predictions.require_approved_demo_image"),
+        patch(
+            "app.api.predictions.predict_image",
+            side_effect=service_error,
+        ),
+    ):
+        response = send_prediction(content, "test.png", "image/png")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "AI prediction is temporarily unavailable."
+    )
