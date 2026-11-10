@@ -1,4 +1,3 @@
-
 type Language = 'en' | 'kn' | 'hi'
 
 type AwarenessContent = {
@@ -112,6 +111,26 @@ const translations: Record<Language, AwarenessContent> = {
   },
 }
 
+// Localized names for the existing external medical resource links.
+// The URLs and the original English link labels are preserved.
+const resourceLabels: Record<Language, { who: string; cdc: string; nhs: string }> = {
+  en: {
+    who: 'World Health Organization (WHO)',
+    cdc: 'CDC — Breast Cancer Symptoms',
+    nhs: 'NHS — Breast Awareness',
+  },
+  kn: {
+    who: 'ವಿಶ್ವ ಆರೋಗ್ಯ ಸಂಸ್ಥೆ (WHO)',
+    cdc: 'CDC — ಸ್ತನ ಕ್ಯಾನ್ಸರ್‌ನ ಲಕ್ಷಣಗಳು',
+    nhs: 'NHS — ಸ್ತನ ಆರೋಗ್ಯ ಜಾಗೃತಿ',
+  },
+  hi: {
+    who: 'विश्व स्वास्थ्य संगठन (WHO)',
+    cdc: 'CDC — स्तन कैंसर के लक्षण',
+    nhs: 'NHS — स्तन स्वास्थ्य जागरूकता',
+  },
+}
+
 type Props = {
   language: string
 }
@@ -134,6 +153,7 @@ export default function BreastAwareness({ language }: Props) {
         : 'en'
 
   const t = translations[selectedLanguage]
+  const sourceText = resourceLabels[selectedLanguage]
 
   return (
     <section
@@ -188,7 +208,7 @@ export default function BreastAwareness({ language }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                World Health Organization (WHO)
+                {sourceText.who}
               </a>
             </li>
             <li>
@@ -197,7 +217,7 @@ export default function BreastAwareness({ language }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                CDC — Breast Cancer Symptoms
+                {sourceText.cdc}
               </a>
             </li>
             <li>
@@ -206,7 +226,7 @@ export default function BreastAwareness({ language }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                NHS — Breast Awareness
+                {sourceText.nhs}
               </a>
             </li>
           </ul>
