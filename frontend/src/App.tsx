@@ -48,7 +48,214 @@ const noImageText: Record<Language, {
   },
 }
 
+// New graph helper text is localized without changing any existing translation keys.
+const scoreChartText: Record<Language, {
+  instruction: string
+  detailTitle: string
+  detailPrefix: string
+  detailSuffix: string
+  zeroNote: string
+}> = {
+  en: {
+    instruction: 'Hover over, focus on, or tap a bar to understand its classification score.',
+    detailTitle: 'What does this classification score mean?',
+    detailPrefix: 'For this image, the experimental AI model assigned this dataset category a score of',
+    detailSuffix: 'on its 0–1 output scale. Higher scores show which category the model favors more strongly; they are not medically validated cancer probabilities or a diagnosis.',
+    zeroNote: 'A displayed score of 0.0000 may reflect rounding. It does not mean zero cancer risk.',
+  },
+  kn: {
+    instruction: 'ವರ್ಗೀಕರಣ ಅಂಕದ ಅರ್ಥ ತಿಳಿಯಲು ಪಟ್ಟಿಯ ಮೇಲೆ ಕರ್ಸರ್ ಇರಿಸಿ, ಕೀಬೋರ್ಡ್‌ನಿಂದ ಆಯ್ಕೆಮಾಡಿ ಅಥವಾ ಸ್ಪರ್ಶಿಸಿ.',
+    detailTitle: 'ಈ ವರ್ಗೀಕರಣ ಅಂಕದ ಅರ್ಥವೇನು?',
+    detailPrefix: 'ಈ ಚಿತ್ರಕ್ಕಾಗಿ ಪ್ರಯೋಗಾತ್ಮಕ AI ಮಾದರಿಯು ಈ ದತ್ತಾಂಶ ವರ್ಗಕ್ಕೆ ನೀಡಿರುವ ಅಂಕ',
+    detailSuffix: 'ಇದು 0–1 ಮಾಪಕದಲ್ಲಿನ ಮಾದರಿಯ ಅಂಕವಾಗಿದೆ. ಹೆಚ್ಚಿನ ಅಂಕವು ಮಾದರಿ ಆ ವರ್ಗಕ್ಕೆ ಹೆಚ್ಚು ಆದ್ಯತೆ ನೀಡಿದೆ ಎಂಬುದನ್ನು ಮಾತ್ರ ಸೂಚಿಸುತ್ತದೆ; ಇದು ವೈದ್ಯಕೀಯವಾಗಿ ದೃಢೀಕರಿಸಿದ ಕ್ಯಾನ್ಸರ್ ಸಂಭವನೀಯತೆ ಅಥವಾ ರೋಗನಿರ್ಣಯವಲ್ಲ.',
+    zeroNote: '0.0000 ಎಂದು ಕಾಣುವ ಅಂಕವು ಪೂರ್ಣಾಂಕೀಕರಣದಿಂದ ಆಗಿರಬಹುದು. ಇದರ ಅರ್ಥ ಕ್ಯಾನ್ಸರ್ ಅಪಾಯ ಶೂನ್ಯ ಎಂದಲ್ಲ.',
+  },
+  hi: {
+    instruction: 'वर्गीकरण स्कोर समझने के लिए किसी बार पर माउस ले जाएँ, कीबोर्ड से चुनें या टैप करें।',
+    detailTitle: 'इस वर्गीकरण स्कोर का क्या अर्थ है?',
+    detailPrefix: 'इस छवि के लिए प्रयोगात्मक AI मॉडल ने इस डेटासेट श्रेणी को',
+    detailSuffix: 'का स्कोर दिया है, जो मॉडल के 0–1 आउटपुट पैमाने पर है। अधिक स्कोर केवल यह दर्शाता है कि मॉडल उस श्रेणी को अधिक महत्व देता है; यह चिकित्सकीय रूप से मान्य कैंसर संभावना या निदान नहीं है।',
+    zeroNote: 'दिखाया गया 0.0000 स्कोर राउंडिंग के कारण भी हो सकता है। इसका अर्थ कैंसर का जोखिम शून्य नहीं है।',
+  },
+}
+
+// Guidance below the uploaded preview explains only verified file facts and existing AI outputs.
+// It does not interpret ultrasound anatomy or claim a medical diagnosis.
+type ImageInsight = 'file' | 'prediction' | 'gradcam'
+const imageInsightText: Record<Language, {
+  journeyTitle: string
+  instruction: string
+  fileTitle: string
+  predictionTitle: string
+  gradcamTitle: string
+  pending: string
+  fileDescription: string
+  predictionPending: string
+  gradcamPending: string
+  boundaries: string
+}> = {
+  en: {
+    journeyTitle: 'Understanding this uploaded image',
+    instruction: 'Choose one of the three connected steps for an explanation.',
+    fileTitle: 'Image details',
+    predictionTitle: 'AI classification',
+    gradcamTitle: 'Grad-CAM explanation',
+    pending: 'Not generated yet',
+    fileDescription: 'The selected file is shown above. Selecting an image is not the same as verifying its format or confirming it is an ultrasound.',
+    predictionPending: 'No experimental AI classification has been generated for this image yet.',
+    gradcamPending: 'No Grad-CAM heatmap has been generated for this image yet.',
+    boundaries: 'These steps explain the file and the model outputs, not the medical meaning of specific structures in the ultrasound.',
+  },
+  kn: {
+    journeyTitle: 'ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ಚಿತ್ರದ ಬಗ್ಗೆ ತಿಳಿಯಿರಿ',
+    instruction: 'ವಿವರಣೆಗಾಗಿ ಸಂಪರ್ಕಿತ ಮೂರು ಹಂತಗಳಲ್ಲಿ ಒಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ.',
+    fileTitle: 'ಚಿತ್ರದ ವಿವರಗಳು',
+    predictionTitle: 'AI ವರ್ಗೀಕರಣ',
+    gradcamTitle: 'Grad-CAM ವಿವರಣೆ',
+    pending: 'ಇನ್ನೂ ರಚಿಸಲಾಗಿಲ್ಲ',
+    fileDescription: 'ಆಯ್ಕೆಮಾಡಿದ ಕಡತವನ್ನು ಮೇಲೆ ತೋರಿಸಲಾಗಿದೆ. ಚಿತ್ರವನ್ನು ಆರಿಸುವುದರಿಂದ ಅದರ ಸ್ವರೂಪ ಪರಿಶೀಲನೆಯಾಗುವುದಿಲ್ಲ ಅಥವಾ ಅದು ಅಲ್ಟ್ರಾಸೌಂಡ್ ಎಂದು ದೃಢವಾಗುವುದಿಲ್ಲ.',
+    predictionPending: 'ಈ ಚಿತ್ರದ ಪ್ರಯೋಗಾತ್ಮಕ AI ವರ್ಗೀಕರಣವನ್ನು ಇನ್ನೂ ರಚಿಸಲಾಗಿಲ್ಲ.',
+    gradcamPending: 'ಈ ಚಿತ್ರದ Grad-CAM ಹೀಟ್‌ಮ್ಯಾಪ್ ಅನ್ನು ಇನ್ನೂ ರಚಿಸಲಾಗಿಲ್ಲ.',
+    boundaries: 'ಈ ಹಂತಗಳು ಕಡತ ಮತ್ತು ಮಾದರಿಯ ಫಲಿತಾಂಶಗಳನ್ನು ಮಾತ್ರ ವಿವರಿಸುತ್ತವೆ; ಅಲ್ಟ್ರಾಸೌಂಡ್‌ನ ನಿರ್ದಿಷ್ಟ ಭಾಗಗಳ ವೈದ್ಯಕೀಯ ಅರ್ಥವನ್ನಲ್ಲ.',
+  },
+  hi: {
+    journeyTitle: 'अपलोड की गई छवि को समझें',
+    instruction: 'जानकारी देखने के लिए जुड़े हुए तीन चरणों में से एक चुनें।',
+    fileTitle: 'छवि का विवरण',
+    predictionTitle: 'AI वर्गीकरण',
+    gradcamTitle: 'Grad-CAM की व्याख्या',
+    pending: 'अभी तैयार नहीं',
+    fileDescription: 'चुनी गई फ़ाइल ऊपर दिखाई गई है। फ़ाइल चुनना उसके प्रारूप की जाँच या उसके अल्ट्रासाउंड होने की पुष्टि नहीं है।',
+    predictionPending: 'इस छवि के लिए अभी कोई प्रयोगात्मक AI वर्गीकरण तैयार नहीं हुआ है।',
+    gradcamPending: 'इस छवि के लिए अभी कोई Grad-CAM हीटमैप तैयार नहीं हुआ है।',
+    boundaries: 'ये चरण फ़ाइल और मॉडल के आउटपुट समझाते हैं, अल्ट्रासाउंड की विशिष्ट संरचनाओं का चिकित्सकीय अर्थ नहीं।',
+  },
+}
+
+// General next-step guidance accompanies the ultrasound preview, never the predicted
+// category. The experimental research score must not determine medical advice.
+const careGuidanceText: Record<Language, {
+  heading: string
+  description: string
+  reminder: string
+  exploreSymptoms: string
+  cards: Array<{ title: string; summary: string; points: string[] }>
+}> = {
+  en: {
+    heading: 'What should you do next?',
+    description: 'General breast-health guidance, not a recommendation based on the AI classification.',
+    reminder: 'An AI result labelled Benign, Normal or Malignant cannot confirm or rule out cancer. Only a qualified healthcare professional can assess your health concerns.',
+    exploreSymptoms: 'Open Symptom Guidance',
+    cards: [
+      {
+        title: 'Next Steps',
+        summary: 'Know when to seek professional assessment.',
+        points: [
+          'If you notice a new or unusual breast change, contact a qualified healthcare professional promptly.',
+          'Do not treat a Benign or Normal AI label as reassurance that no medical assessment is needed.',
+          'A clinician can decide whether a physical examination, imaging or follow-up is appropriate.',
+        ],
+      },
+      {
+        title: 'Warning Signs',
+        summary: 'Recognize changes that deserve medical attention.',
+        points: [
+          'Watch for a new lump or swelling in the breast or armpit.',
+          'Seek assessment for new nipple discharge, especially blood, skin dimpling, nipple changes or unusual changes in breast shape.',
+          'Discuss persistent pain or any other new breast change with a healthcare professional. These changes can have non-cancer causes, but should still be checked.',
+        ],
+      },
+      {
+        title: 'Prepare for a Visit',
+        summary: 'Gather useful information before speaking to a clinician.',
+        points: [
+          'Note when the change began, where it is, and whether it has persisted or changed over time.',
+          'Bring any available previous ultrasound scans, clinical imaging reports and relevant medical history.',
+          'Ask what the findings mean and whether further assessment or follow-up is needed. This experimental AI output is not a clinical report.',
+        ],
+      },
+    ],
+  },
+  kn: {
+    heading: 'ಮುಂದೇನು ಮಾಡಬೇಕು?',
+    description: 'ಇದು ಸಾಮಾನ್ಯ ಸ್ತನ ಆರೋಗ್ಯ ಮಾರ್ಗದರ್ಶನ; AI ವರ್ಗೀಕರಣದ ಆಧಾರದ ಮೇಲಿನ ವೈಯಕ್ತಿಕ ವೈದ್ಯಕೀಯ ಸಲಹೆಯಲ್ಲ.',
+    reminder: 'AI ಫಲಿತಾಂಶದಲ್ಲಿ Benign, Normal ಅಥವಾ Malignant ಎಂದು ಬಂದರೂ ಕ್ಯಾನ್ಸರ್ ಇದೆ ಅಥವಾ ಇಲ್ಲ ಎಂದು ದೃಢಪಡಿಸಲಾಗುವುದಿಲ್ಲ. ನಿಮ್ಮ ಆರೋಗ್ಯ ಕಳವಳಗಳನ್ನು ಅರ್ಹ ವೈದ್ಯಕೀಯ ವೃತ್ತಿಪರರು ಮಾತ್ರ ಮೌಲ್ಯಮಾಪನ ಮಾಡಬಹುದು.',
+    exploreSymptoms: 'ಲಕ್ಷಣಗಳ ಮಾರ್ಗದರ್ಶನವನ್ನು ತೆರೆಯಿರಿ',
+    cards: [
+      {
+        title: 'ಮುಂದಿನ ಕ್ರಮಗಳು',
+        summary: 'ಯಾವಾಗ ವೈದ್ಯಕೀಯ ತಪಾಸಣೆ ಪಡೆಯಬೇಕು ಎಂದು ತಿಳಿಯಿರಿ.',
+        points: [
+          'ಸ್ತನದಲ್ಲಿ ಹೊಸ ಅಥವಾ ಅಸಾಮಾನ್ಯ ಬದಲಾವಣೆ ಕಂಡುಬಂದರೆ ಶೀಘ್ರವಾಗಿ ಅರ್ಹ ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ.',
+          'AI ಫಲಿತಾಂಶದಲ್ಲಿ Benign ಅಥವಾ Normal ಎಂದಿದ್ದರೂ ವೈದ್ಯಕೀಯ ತಪಾಸಣೆ ಅಗತ್ಯವಿಲ್ಲ ಎಂದು ಭಾವಿಸಬೇಡಿ.',
+          'ದೈಹಿಕ ಪರೀಕ್ಷೆ, ಚಿತ್ರಣ ಪರೀಕ್ಷೆ ಅಥವಾ ಮುಂದಿನ ತಪಾಸಣೆ ಬೇಕೇ ಎಂಬುದನ್ನು ವೈದ್ಯರು ನಿರ್ಧರಿಸಬಹುದು.',
+        ],
+      },
+      {
+        title: 'ಎಚ್ಚರಿಕೆ ಲಕ್ಷಣಗಳು',
+        summary: 'ವೈದ್ಯರ ಗಮನಕ್ಕೆ ತರಬೇಕಾದ ಬದಲಾವಣೆಗಳನ್ನು ತಿಳಿಯಿರಿ.',
+        points: [
+          'ಸ್ತನ ಅಥವಾ ಕಂಕುಳಿನಲ್ಲಿ ಹೊಸ ಗಡ್ಡೆ ಅಥವಾ ಊತ ಇದೆಯೇ ಎಂದು ಗಮನಿಸಿ.',
+          'ಮೊಲೆತೊಟ್ಟಿನಿಂದ ಹೊಸ ಸ್ರಾವ (ವಿಶೇಷವಾಗಿ ರಕ್ತ), ಚರ್ಮದಲ್ಲಿ ಕುಳಿ, ಮೊಲೆತೊಟ್ಟಿನ ಬದಲಾವಣೆ ಅಥವಾ ಸ್ತನದ ಆಕಾರದಲ್ಲಿ ಅಸಾಮಾನ್ಯ ಬದಲಾವಣೆ ಇದ್ದರೆ ತಪಾಸಣೆ ಮಾಡಿಸಿಕೊಳ್ಳಿ.',
+          'ನಿರಂತರ ನೋವು ಅಥವಾ ಸ್ತನದಲ್ಲಿ ಇತರ ಹೊಸ ಬದಲಾವಣೆಗಳಿದ್ದರೆ ವೈದ್ಯರೊಂದಿಗೆ ಚರ್ಚಿಸಿ. ಇವು ಕ್ಯಾನ್ಸರ್ ಅಲ್ಲದ ಕಾರಣಗಳಿಂದಲೂ ಉಂಟಾಗಬಹುದು, ಆದರೂ ಪರಿಶೀಲನೆ ಅಗತ್ಯ.',
+        ],
+      },
+      {
+        title: 'ವೈದ್ಯರ ಭೇಟಿಗೆ ಸಿದ್ಧತೆ',
+        summary: 'ವೈದ್ಯರನ್ನು ಭೇಟಿ ಮಾಡುವ ಮೊದಲು ಉಪಯುಕ್ತ ಮಾಹಿತಿಯನ್ನು ಸಿದ್ಧಪಡಿಸಿ.',
+        points: [
+          'ಬದಲಾವಣೆ ಯಾವಾಗ ಆರಂಭವಾಯಿತು, ಎಲ್ಲಿ ಇದೆ ಮತ್ತು ಸಮಯದೊಂದಿಗೆ ಹೇಗೆ ಬದಲಾಗಿದೆ ಎಂಬುದನ್ನು ದಾಖಲಿಸಿ.',
+          'ಲಭ್ಯವಿದ್ದರೆ ಹಿಂದಿನ ಅಲ್ಟ್ರಾಸೌಂಡ್ ಚಿತ್ರಗಳು, ವೈದ್ಯಕೀಯ ಚಿತ್ರಣ ವರದಿಗಳು ಮತ್ತು ಸಂಬಂಧಿತ ಆರೋಗ್ಯ ಇತಿಹಾಸವನ್ನು ತೆಗೆದುಕೊಂಡು ಹೋಗಿ.',
+          'ಫಲಿತಾಂಶದ ಅರ್ಥ ಮತ್ತು ಮುಂದಿನ ಪರೀಕ್ಷೆ ಬೇಕೇ ಎಂದು ವೈದ್ಯರನ್ನು ಕೇಳಿ. ಈ ಪ್ರಯೋಗಾತ್ಮಕ AI ಫಲಿತಾಂಶ ವೈದ್ಯಕೀಯ ವರದಿಯಲ್ಲ.',
+        ],
+      },
+    ],
+  },
+  hi: {
+    heading: 'अब आगे क्या करें?',
+    description: 'यह स्तन स्वास्थ्य संबंधी सामान्य जानकारी है, AI वर्गीकरण के आधार पर व्यक्तिगत चिकित्सकीय सलाह नहीं।',
+    reminder: 'AI परिणाम में Benign, Normal या Malignant आने से कैंसर होने या न होने की पुष्टि नहीं होती। आपकी स्वास्थ्य संबंधी चिंताओं का मूल्यांकन केवल योग्य स्वास्थ्य पेशेवर कर सकते हैं।',
+    exploreSymptoms: 'लक्षणों का मार्गदर्शन खोलें',
+    cards: [
+      {
+        title: 'अगले कदम',
+        summary: 'जानें कि चिकित्सकीय जाँच कब करवानी चाहिए।',
+        points: [
+          'स्तन में कोई नया या असामान्य बदलाव दिखे तो जल्द किसी योग्य स्वास्थ्य पेशेवर से संपर्क करें।',
+          'AI में Benign या Normal दिखने का अर्थ यह नहीं है कि चिकित्सकीय जाँच की आवश्यकता नहीं है।',
+          'डॉक्टर तय कर सकते हैं कि शारीरिक परीक्षण, इमेजिंग या आगे की जाँच की जरूरत है या नहीं।',
+        ],
+      },
+      {
+        title: 'चेतावनी के संकेत',
+        summary: 'जानें किन बदलावों पर डॉक्टर से बात करनी चाहिए।',
+        points: [
+          'स्तन या बगल में नई गाँठ या सूजन पर ध्यान दें।',
+          'निप्पल से नया स्राव, खासकर खून, त्वचा पर गड्ढे, निप्पल में बदलाव या स्तन के आकार में असामान्य बदलाव होने पर जाँच करवाएँ।',
+          'लगातार दर्द या स्तन में किसी अन्य नए बदलाव के बारे में डॉक्टर से बात करें। इनके गैर-कैंसर कारण भी हो सकते हैं, फिर भी जाँच जरूरी है।',
+        ],
+      },
+      {
+        title: 'डॉक्टर से मिलने की तैयारी',
+        summary: 'अपनी मुलाकात के लिए जरूरी जानकारी तैयार रखें।',
+        points: [
+          'लिखें कि बदलाव कब शुरू हुआ, कहाँ है और समय के साथ कैसे बदला है।',
+          'यदि उपलब्ध हों, तो पिछले अल्ट्रासाउंड, मेडिकल इमेजिंग रिपोर्ट और संबंधित स्वास्थ्य इतिहास साथ ले जाएँ।',
+          'डॉक्टर से पूछें कि जाँच का क्या अर्थ है और आगे कोई परीक्षण या फॉलो-अप चाहिए या नहीं। यह प्रयोगात्मक AI आउटपुट चिकित्सकीय रिपोर्ट नहीं है।',
+        ],
+      },
+    ],
+  },
+}
+
 type Page = 'welcome' | 'overview' | 'awareness' | 'symptom-guidance' | 'risk-awareness' | 'upload' | 'modules' | 'about'
+
+// Labels for the new mobile navigation controls; existing translation keys are unchanged.
+const mobileNavigationLabels: Record<Language, { open: string; close: string }> = {
+  en: { open: 'Open navigation', close: 'Close navigation' },
+  kn: { open: 'ನ್ಯಾವಿಗೇಶನ್ ತೆರೆಯಿರಿ', close: 'ನ್ಯಾವಿಗೇಶನ್ ಮುಚ್ಚಿರಿ' },
+  hi: { open: 'नेविगेशन खोलें', close: 'नेविगेशन बंद करें' },
+}
 
 // Preserve the original #section links as direct, bookmarkable navigation.
 const getPageFromHash = (hash: string): Page => {
@@ -75,8 +282,13 @@ const getPageFromHash = (hash: string): Page => {
 function App() {
   const [language, setLanguage] = useState<Language>('en')
   const [activePage, setActivePage] = useState<Page>(() => getPageFromHash(window.location.hash))
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const t = translations[language]
   const noImage = noImageText[language]
+  const mobileNavText = mobileNavigationLabels[language]
+  const chartText = scoreChartText[language]
+  const insightText = imageInsightText[language]
+  const careText = careGuidanceText[language]
 
   const [backendState, setBackendState] = useState<BackendState>('checking')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
@@ -92,6 +304,8 @@ function App() {
 
   const [predictionState, setPredictionState] = useState<ProcessState>('idle')
   const [predictionResult, setPredictionResult] = useState<PredictionResult | null>(null)
+  const [selectedScoreCategory, setSelectedScoreCategory] = useState<string | null>(null)
+  const [activeImageInsight, setActiveImageInsight] = useState<ImageInsight | null>(null)
   const [predictionErrorCode, setPredictionErrorCode] = useState(0)
 
   const [gradcamState, setGradcamState] = useState<ProcessState>('idle')
@@ -105,7 +319,10 @@ function App() {
 
   // Hash links preserve browser history, existing deep links, and refreshes.
   useEffect(() => {
-    const syncPage = () => setActivePage(getPageFromHash(window.location.hash))
+    const syncPage = () => {
+      setActivePage(getPageFromHash(window.location.hash))
+      setMobileNavOpen(false)
+    }
     window.addEventListener('hashchange', syncPage)
     window.addEventListener('popstate', syncPage)
     return () => {
@@ -113,6 +330,16 @@ function App() {
       window.removeEventListener('popstate', syncPage)
     }
   }, [])
+
+  // Let mobile users dismiss the navigation without changing their current page.
+  useEffect(() => {
+    if (!mobileNavOpen) return
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileNavOpen(false)
+    }
+    window.addEventListener('keydown', dismissOnEscape)
+    return () => window.removeEventListener('keydown', dismissOnEscape)
+  }, [mobileNavOpen])
 
   // A target may be mounted only after its view becomes active.
   useEffect(() => {
@@ -183,6 +410,8 @@ function App() {
   const resetAnalysis = () => {
     setPredictionState('idle')
     setPredictionResult(null)
+    setSelectedScoreCategory(null)
+    setActiveImageInsight(null)
     setPredictionErrorCode(0)
     setGradcamState('idle')
     setGradcamUrl(null)
@@ -226,6 +455,8 @@ function App() {
     setValidatedDetails(null)
     setPredictionState('idle')
     setPredictionResult(null)
+    setSelectedScoreCategory(null)
+    setActiveImageInsight(null)
     setGradcamState('idle')
     setGradcamUrl(null)
     setConfirmedUltrasound(false)
@@ -277,6 +508,7 @@ function App() {
     if (!selectedImage || !canAnalyze) return
     setPredictionState('loading')
     setPredictionResult(null)
+    setSelectedScoreCategory(null)
     setPredictionErrorCode(0)
 
     try {
@@ -394,8 +626,16 @@ function App() {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <a className="brand" href="#home" aria-label={t.title}>
+      <aside className={`sidebar${mobileNavOpen ? ' is-open' : ''}`} id="main-sidebar">
+        <button
+          type="button"
+          className="mobile-menu-close"
+          aria-label={mobileNavText.close}
+          onClick={() => setMobileNavOpen(false)}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+        <a className="brand" href="#home" aria-label={t.title} onClick={() => setMobileNavOpen(false)}>
           <div className="brand-icon">+</div>
           <div>
             <strong>{t.title}</strong>
@@ -404,18 +644,39 @@ function App() {
         </a>
 
         <nav aria-label={t.modulesHeading}>
-          <a href="#overview" aria-current={['overview', 'awareness', 'symptom-guidance', 'risk-awareness'].includes(activePage) ? 'page' : undefined}>{t.overview}</a>
-          <a href="#upload" aria-current={activePage === 'upload' ? 'page' : undefined}>{t.upload}</a>
-          <a href="#modules" aria-current={activePage === 'modules' ? 'page' : undefined}>{t.modules}</a>
-          <a href="#about" aria-current={activePage === 'about' ? 'page' : undefined}>{t.about}</a>
+          <a href="#overview" onClick={() => setMobileNavOpen(false)} aria-current={['overview', 'awareness', 'symptom-guidance', 'risk-awareness'].includes(activePage) ? 'page' : undefined}>{t.overview}</a>
+          <a href="#upload" onClick={() => setMobileNavOpen(false)} aria-current={activePage === 'upload' ? 'page' : undefined}>{t.upload}</a>
+          <a href="#modules" onClick={() => setMobileNavOpen(false)} aria-current={activePage === 'modules' ? 'page' : undefined}>{t.modules}</a>
+          <a href="#about" onClick={() => setMobileNavOpen(false)} aria-current={activePage === 'about' ? 'page' : undefined}>{t.about}</a>
         </nav>
 
         <p className="sidebar-footer">{t.sidebarFooter}</p>
       </aside>
 
+      {mobileNavOpen && (
+        <button
+          type="button"
+          className="mobile-nav-backdrop"
+          aria-label={mobileNavText.close}
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
       <main className="main-content">
         <header className="topbar">
-          <span>{t.title}</span>
+          <div className="topbar-title">
+            <button
+              type="button"
+              className="mobile-menu-toggle"
+              aria-label={mobileNavText.open}
+              aria-controls="main-sidebar"
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen(true)}
+            >
+              <span aria-hidden="true">☰</span>
+            </button>
+            <span>{t.title}</span>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <label htmlFor="language-select">{t.languageLabel}:</label>
             <select
@@ -439,6 +700,11 @@ function App() {
               <h1>{t.heroTitle}</h1>
               <p>{t.heroDescription}</p>
               <a className="primary-link" href="#overview">{t.overview}</a>
+              <nav className="welcome-quick-links" aria-label={t.modulesHeading}>
+                <a href="#upload">{t.upload}<span aria-hidden="true"> ↗</span></a>
+                <a href="#modules">{t.modules}<span aria-hidden="true"> ↗</span></a>
+                <a href="#about">{t.about}<span aria-hidden="true"> ↗</span></a>
+              </nav>
             </div>
           </section>
         )}
@@ -460,9 +726,21 @@ function App() {
               <p>{noImage.description}</p>
 
               <div className="no-image-links">
-                <a href="#awareness">{noImage.awareness}</a>
-                <a href="#symptom-guidance">{noImage.symptoms}</a>
-                <a href="#risk-awareness">{noImage.risk}</a>
+                <a className="overview-topic-card" href="#awareness">
+                  <span className="topic-card-symbol" aria-hidden="true">♡</span>
+                  <span className="topic-card-label">{noImage.awareness}</span>
+                  <span className="topic-card-arrow" aria-hidden="true">→</span>
+                </a>
+                <a className="overview-topic-card" href="#symptom-guidance">
+                  <span className="topic-card-symbol" aria-hidden="true">✦</span>
+                  <span className="topic-card-label">{noImage.symptoms}</span>
+                  <span className="topic-card-arrow" aria-hidden="true">→</span>
+                </a>
+                <a className="overview-topic-card" href="#risk-awareness">
+                  <span className="topic-card-symbol" aria-hidden="true">◎</span>
+                  <span className="topic-card-label">{noImage.risk}</span>
+                  <span className="topic-card-arrow" aria-hidden="true">→</span>
+                </a>
               </div>
             </section>
 
@@ -496,6 +774,25 @@ function App() {
               <h2>{t.uploadHeading}</h2>
               <p>{t.uploadDescription}</p>
             </div>
+
+            <ol className="upload-journey" aria-label={t.uploadHeading}>
+              <li className={selectedImage ? 'is-complete' : ''}>
+                <span className="upload-journey-number" aria-hidden="true">01</span>
+                <span>{t.selectImage}</span>
+              </li>
+              <li className={uploadState === 'success' ? 'is-complete' : ''}>
+                <span className="upload-journey-number" aria-hidden="true">02</span>
+                <span>{t.validateImage}</span>
+              </li>
+              <li className={predictionState === 'success' ? 'is-complete' : ''}>
+                <span className="upload-journey-number" aria-hidden="true">03</span>
+                <span>{t.analyze}</span>
+              </li>
+              <li className={gradcamState === 'success' ? 'is-complete' : ''}>
+                <span className="upload-journey-number" aria-hidden="true">04</span>
+                <span>{t.explain}</span>
+              </li>
+            </ol>
 
             <div className="upload-card">
               <div className="upload-controls">
@@ -671,6 +968,62 @@ function App() {
                     {Object.entries(predictionResult.model_scores).map(([label, score]) => (
                       <p key={label}>{translatedClass(label)}: {Number(score).toFixed(4)}</p>
                     ))}
+
+                    {/* A score chart for the current backend result. Bars are not cancer-risk probabilities. */}
+                    <div className="score-chart" role="group" aria-label={t.modelScores}>
+                      <p className="score-chart-hint">{chartText.instruction}</p>
+                      <div className="score-chart-rows">
+                        {Object.entries(predictionResult.model_scores).map(([label, score]) => {
+                          const value = Number(score)
+                          const displayedValue = value.toFixed(4)
+                          const barWidth = Number.isFinite(value)
+                            ? Math.max(0, Math.min(value, 1)) * 100
+                            : 0
+                          const isSelected = selectedScoreCategory === label
+                          return (
+                            <button
+                              key={label}
+                              type="button"
+                              className={`score-chart-row${isSelected ? ' is-selected' : ''}`}
+                              aria-pressed={isSelected}
+                              aria-label={`${translatedClass(label)}: ${displayedValue}. ${chartText.detailTitle}`}
+                              onClick={() => setSelectedScoreCategory(label)}
+                              onMouseEnter={() => setSelectedScoreCategory(label)}
+                              onFocus={() => setSelectedScoreCategory(label)}
+                            >
+                              <span className="score-chart-row-header">
+                                <span className="score-chart-name">{translatedClass(label)}</span>
+                                <span className="score-chart-value">{displayedValue}</span>
+                              </span>
+                              <span className="score-chart-track" aria-hidden="true">
+                                <span className="score-chart-fill" style={{ width: `${barWidth}%` }} />
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <div className="score-chart-axis" aria-hidden="true">
+                        <span>0.0</span><span>1.0</span>
+                      </div>
+                      {selectedScoreCategory != null &&
+                        Object.prototype.hasOwnProperty.call(predictionResult.model_scores, selectedScoreCategory) && (
+                          <div className="score-chart-explanation" aria-live="polite" aria-atomic="true">
+                            <strong>{chartText.detailTitle}</strong>
+                            <p>
+                              <strong>{translatedClass(selectedScoreCategory)}: {Number(predictionResult.model_scores[selectedScoreCategory]).toFixed(4)}</strong>
+                              {' — '}{categoryExplanation(selectedScoreCategory)}
+                            </p>
+                            <p>
+                              {chartText.detailPrefix}{' '}
+                              <strong>{Number(predictionResult.model_scores[selectedScoreCategory]).toFixed(4)}</strong>{' '}
+                              {chartText.detailSuffix}
+                            </p>
+                            {Number(predictionResult.model_scores[selectedScoreCategory]).toFixed(4) === '0.0000' && (
+                              <p>{chartText.zeroNote}</p>
+                            )}
+                          </div>
+                        )}
+                    </div>
                     <p>
                       <strong>{t.imageStored}:</strong>{' '}
                       {predictionResult.stored ? t.yes : t.no}
@@ -681,8 +1034,127 @@ function App() {
               </div>
 
               <div className="upload-preview">
-                {previewUrl ? (
-                  <img src={previewUrl} alt={t.imagePreviewAlt} />
+                {previewUrl && selectedImage ? (
+                  <div className="image-explainer">
+                    <div className="image-explainer-original">
+                      <img src={previewUrl} alt={t.imagePreviewAlt} />
+                    </div>
+                    <div className="image-explainer-flow" role="group" aria-label={insightText.journeyTitle}>
+                      <h3>{insightText.journeyTitle}</h3>
+                      <p className="image-explainer-hint">{insightText.instruction}</p>
+                      <div className="image-explainer-branches" aria-label={insightText.journeyTitle}>
+                        {([
+                          { key: 'file', title: insightText.fileTitle,
+                            state: uploadState === 'success' ? t.fileFormatVerified : uploadState === 'loading' ? t.validating : t.imageSelected },
+                          { key: 'prediction', title: insightText.predictionTitle,
+                            state: predictionResult ? t.analysisCompleted : predictionState === 'loading' ? t.analyzing : insightText.pending },
+                          { key: 'gradcam', title: insightText.gradcamTitle,
+                            state: gradcamUrl ? t.heatmapCompleted : gradcamState === 'loading' ? t.generatingHeatmap : insightText.pending },
+                        ] as const).map((step, index) => (
+                          <button
+                            key={step.key}
+                            type="button"
+                            className={`image-explainer-node${activeImageInsight === step.key ? ' is-selected' : ''}`}
+                            onClick={() => setActiveImageInsight(activeImageInsight === step.key ? null : step.key)}
+                            aria-expanded={activeImageInsight === step.key}
+                            aria-controls="image-explainer-detail"
+                          >
+                            <span className="image-explainer-node-number">0{index + 1}</span>
+                            <span className="image-explainer-node-title">{step.title}</span>
+                            <span className="image-explainer-node-state">{step.state}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <div id="image-explainer-detail" className="image-explainer-detail" aria-live="polite">
+                        {activeImageInsight === 'file' && (
+                          <>
+                            <h4>{insightText.fileTitle}</h4>
+                            <p><strong>{t.file}:</strong> {selectedImage.name}</p>
+                            <p><strong>{t.size}:</strong> {(selectedImage.size / 1024).toFixed(2)} KB</p>
+                            {uploadState === 'success' && validatedDetails && (
+                              <p>{t.fileFormatVerified} <strong>{t.fileFormat}:</strong> {validatedDetails.format}.{' '}
+                                <strong>{t.dimensions}:</strong> {validatedDetails.width} × {validatedDetails.height}.</p>
+                            )}
+                            <p>{insightText.fileDescription}</p>
+                            {uploadState === 'success' && validatedDetails && <p>{t.validationOnlyNotice}</p>}
+                          </>
+                        )}
+                        {activeImageInsight === 'prediction' && (
+                          <>
+                            <h4>{insightText.predictionTitle}</h4>
+                            {predictionResult ? (
+                              <>
+                                <p><strong>{t.predictedClass}:</strong> {translatedClass(predictionResult.predicted_class)}{' '}
+                                  — {categoryExplanation(predictionResult.predicted_class)}</p>
+                                {Object.entries(predictionResult.model_scores)
+                                  .filter(([label]) => label.toLowerCase() === predictionResult.predicted_class.toLowerCase())
+                                  .map(([label, value]) => (
+                                    <p key={label}><strong>{t.modelScores} — {translatedClass(label)}:</strong>{' '}
+                                      {Number(value).toFixed(4)}</p>
+                                  ))}
+                                <p>{t.medicalNotice}</p>
+                              </>
+                            ) : (
+                              <p>{predictionState === 'loading' ? t.analyzingStatus
+                                : predictionState === 'error' ? requestErrorText(predictionErrorCode, true)
+                                : insightText.predictionPending}</p>
+                            )}
+                          </>
+                        )}
+                        {activeImageInsight === 'gradcam' && (
+                          <>
+                            <h4>{insightText.gradcamTitle}</h4>
+                            {gradcamUrl ? (
+                              <p>{t.gradcamNotice}</p>
+                            ) : (
+                              <p>{gradcamState === 'loading' ? t.heatmapStatus
+                                : gradcamState === 'error' ? (gradcamErrorCode === -1 ? t.invalidHeatmapResponse : requestErrorText(gradcamErrorCode, true))
+                                : insightText.gradcamPending}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <p className="image-explainer-boundary">{insightText.boundaries}</p>
+                    </div>
+
+                    {/* General, non-diagnostic guidance: never changes based on model output. */}
+                    <section className="care-guidance" aria-labelledby="care-guidance-heading">
+                      <div className="care-guidance-intro">
+                        <h3 id="care-guidance-heading">{careText.heading}</h3>
+                        <p>{careText.description}</p>
+                      </div>
+                      <div className="care-guidance-grid">
+                        {careText.cards.map((card, index) => (
+                          <details
+                            key={index}
+                            className={`care-guidance-card${index === 2 ? ' care-guidance-card-wide' : ''}`}
+                          >
+                            <summary className="care-guidance-summary">
+                              <span className="care-guidance-number" aria-hidden="true">0{index + 1}</span>
+                              <span className="care-guidance-summary-copy">
+                                <strong>{card.title}</strong>
+                                <span>{card.summary}</span>
+                              </span>
+                              <span className="care-guidance-toggle" aria-hidden="true">⌄</span>
+                            </summary>
+                            <div className="care-guidance-details">
+                              <ul>
+                                {card.points.map((point, pointIndex) => (
+                                  <li key={pointIndex}>{point}</li>
+                                ))}
+                              </ul>
+                              {index === 1 && (
+                                <a className="care-guidance-link" href="#symptom-guidance">
+                                  {careText.exploreSymptoms}<span aria-hidden="true"> →</span>
+                                </a>
+                              )}
+                            </div>
+                          </details>
+                        ))}
+                      </div>
+                      <p className="care-guidance-reminder">{careText.reminder}</p>
+                    </section>
+                  </div>
                 ) : (
                   <p>{t.previewPlaceholder}</p>
                 )}
